@@ -64,12 +64,12 @@ def backward_prop(Z_input_hidden, A_hidden, Z_hidden_output, A_output, W_input_h
     m = X.shape[1]
     one_hot_Y = one_hot(Y)
     dZ_hidden_output = A_output - one_hot_Y
-    dW_hidden_output = 1 / m * dZ_hidden_output.dot(A_hidden.T)
-    db_hidden_output = 1 / m * np.sum(dZ_hidden_output)
+    dW_hidden_output = 1e-04 * dZ_hidden_output.dot(A_hidden.T)
+    db_hidden_output = 1e-04 * np.sum(dZ_hidden_output)
 
     dZ_input_hidden = W_hidden_output.T.dot(dZ_hidden_output) * deriv_ReLU(Z_input_hidden)
-    dW_input_hidden = 1 / m * dZ_input_hidden.dot(X.T)
-    db_input_hidden = 1 / m * np.sum(dZ_input_hidden)
+    dW_input_hidden = 1e-04 * dZ_input_hidden.dot(X.T)
+    db_input_hidden = 1e-04 * np.sum(dZ_input_hidden)
     return dW_input_hidden, db_input_hidden, dW_hidden_output, db_hidden_output
 
 
@@ -118,10 +118,11 @@ def test_prediction(index, W_input_hidden, b_input_hidden, W_hidden_output, b_hi
     current_image = X_train[:, index]
     prediction = make_predictions(X_train[:, index, None], W_input_hidden, b_input_hidden, W_hidden_output,
                                   b_hidden_output)
+
+
     label = Y_train[index]
     print("Prediction: ", prediction)
     print("Label: ", label)
-
     current_image = current_image.reshape((28, 28)) * 255
 
     plt.gray()
@@ -132,4 +133,6 @@ def test_prediction(index, W_input_hidden, b_input_hidden, W_hidden_output, b_hi
 
 if __name__ == "__main__":
     W_input_hidden, b_input_hidden, W_hidden_output, b_hidden_output = gradient_descent(X_train, Y_train, 1000, 0.1)
-    test_prediction(5, W_input_hidden, b_input_hidden, W_hidden_output, b_hidden_output)
+    while True:
+        test = int(input("Number of test images: "))
+        test_prediction(test, W_input_hidden, b_input_hidden, W_hidden_output, b_hidden_output)
