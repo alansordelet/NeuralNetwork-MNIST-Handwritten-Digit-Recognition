@@ -6,10 +6,11 @@ import locale
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stdin.reconfigure(encoding='utf-8')
 
-data_test = pd.read_csv('test.csv')
-# Since there are no labels, use all columns for X_test
-X_test = data_test.values.T / 255.0
-Y_test = None
+
+data_test = pd.read_csv('mnist_test.csv')
+
+X_test = data_test.iloc[:, 1:].values.T / 255.0
+Y_test = data_test.iloc[:, 0].values
 
 
 # Attempt to read the CSV file for the table of 5 rows and 785 columns for pixels
@@ -30,7 +31,16 @@ X_train = data_train.iloc[:, 1:].values.T / 255.
 Y_train = data_train.iloc[:, 0].values
 _, m_train = X_train.shape
 
+train_df = pd.DataFrame(X_train.T)
+dev_df = pd.DataFrame(X_dev.T)
 
+# Check for duplicates
+duplicates = train_df.merge(dev_df, how='inner')
+
+if not duplicates.empty:
+    print("Data leakage detected: Training and development sets have overlapping samples.")
+else:
+    print("No overlap detected between training and development sets.")
 def init_params():
     W_input_hidden1 = np.random.randn(64, 784) * np.sqrt(2. / 784)
     b_input_hidden1 = np.zeros((64, 1))
@@ -132,8 +142,8 @@ def get_predictions(A_output):
 
 
 def get_accuracy(predictions, Y):
-    print("Sample predictions:", predictions[:5])
-    print("Sample true labels:", Y[:5])
+    print("Sample predictions:", predictions[:10])
+    print("Sample true labels:", Y[:10])
     return np.sum(predictions == Y) / Y.size
 
 
@@ -146,6 +156,7 @@ def gradient_descent(X, Y, iterations, alpha, batch_size, lambd):
         X_shuffled = X[:, permutation]
         Y_shuffled = Y[permutation]
 
+        #stochastic gradient descent (SGD)
         for j in range(0, m, batch_size):
             X_batch = X_shuffled[:, j:j+batch_size]
             Y_batch = Y_shuffled[j:j+batch_size]
@@ -194,34 +205,27 @@ def test_prediction(index, W_input_hidden1, b_input_hidden1, W_hidden1_hidden2, 
     print(f"Testing index: {index}")
     current_image = X_test[:, index]
 
-    # Make prediction
     prediction = make_predictions(current_image.reshape(-1, 1), W_input_hidden1, b_input_hidden1,
                                   W_hidden1_hidden2, b_hidden1_hidden2, W_hidden2_output, b_hidden2_output)
     print("Prediction: ", prediction[0])
 
-
-    if Y_test is not None:
-        label = Y_test[index]
-        print("Actual Label: ", label)
-    else:
-        print("Actual Label: Check Image")
+    label = Y_test[index]
+    print("Actual Label: ", label)
 
     image = current_image.reshape((28, 28)) * 255
     plt.gray()
     plt.imshow(image, interpolation='nearest')
     plt.show()
 
-
-W_input_hidden1, b_input_hidden1, W_hidden1_hidden2, b_hidden1_hidden2, W_hidden2_output, b_hidden2_output = gradient_descent(
+if __name__ == "__main__":
+ W_input_hidden1, b_input_hidden1, W_hidden1_hidden2, b_hidden1_hidden2, W_hidden2_output, b_hidden2_output = gradient_descent(
     X_train, Y_train, iterations=10, alpha=0.1, batch_size=64,  lambd=0.01)
-while True:
+ while True:
     user_input = input(f"Enter an image index to test (between 0 and {X_test.shape[1] - 1}): ")
     print(f"Raw input received: {user_input!r}")
-    try:
-        test = int(user_input.strip())
-    except ValueError:
-        print("Please enter a valid integer.")
-        continue
+
+    test = int(user_input.strip())
+
     if test == -1:
         print("Exiting program")
         break
