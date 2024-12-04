@@ -41,6 +41,8 @@ if not duplicates.empty:
     print("Data leakage detected: Training and development sets have overlapping samples.")
 else:
     print("No overlap detected between training and development sets.")
+
+
 def init_params():
     W_input_hidden1 = np.random.randn(64, 784) * np.sqrt(2. / 784)
     b_input_hidden1 = np.zeros((64, 1))
@@ -89,13 +91,6 @@ def one_hot(Y, num_classes=10):
 
 def deriv_ReLU(Z):
     return Z > 0
-
-def compute_loss(A_output, Y):
-    m = Y.size
-    one_hot_Y = one_hot(Y)
-    log_probs = -np.log(A_output + 1e-8) * one_hot_Y
-    loss = np.sum(log_probs) / m
-    return loss
 
 
 def backward_prop(Z_input_hidden1, A_hidden1, Z_hidden1_hidden2, A_hidden2, Z_hidden2_output, A_output,
