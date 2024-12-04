@@ -25,7 +25,7 @@ _,m_train = X_train.shape
 
 
 def init_params():
-    W_input_hidden = np.random.randn(64, 784)
+    W_input_hidden = np.random.randn(64, 784) # (Gaussian distribution) with a mean of 0 and a standard deviation of 1 (so maximum between -3 and 3 (99.7% sure))
     b_input_hidden = np.random.randn(64, 1)
     W_hidden_output = np.random.randn(10, 64)
     b_hidden_output = np.random.randn(10, 1)
@@ -45,7 +45,7 @@ def forward_prop(W_input_hidden, b_input_hidden, W_hidden_output, b_hidden_outpu
     Z_input_hidden = W_input_hidden.dot(X) + b_input_hidden  # Add bias
     A_hidden = ReLU(Z_input_hidden)
     Z_hidden_output = W_hidden_output.dot(A_hidden) + b_hidden_output  # Add bias
-    A_output = softmax(Z_hidden_output)  # Use softmax for output layer
+    A_output = softmax(Z_hidden_output)  # Use Softmax for output layer (converts raw scores of output into probabilities that sum to 1)
     return Z_input_hidden, A_hidden, Z_hidden_output, A_output
 
 
@@ -61,15 +61,17 @@ def deriv_ReLU(Z):
 
 
 def backward_prop(Z_input_hidden, A_hidden, Z_hidden_output, A_output, W_input_hidden, W_hidden_output, X, Y):
+    # Loss function
     m = X.shape[1]
     one_hot_Y = one_hot(Y)
     dZ_hidden_output = A_output - one_hot_Y
-    dW_hidden_output = 1e-04 * dZ_hidden_output.dot(A_hidden.T)
-    db_hidden_output = 1e-04 * np.sum(dZ_hidden_output)
+    dW_hidden_output = 1 / m * dZ_hidden_output.dot(A_hidden.T)
+    db_hidden_output = 1 / m * np.sum(dZ_hidden_output)
 
+    # Gradients for the Hidden Layer MSE
     dZ_input_hidden = W_hidden_output.T.dot(dZ_hidden_output) * deriv_ReLU(Z_input_hidden)
-    dW_input_hidden = 1e-04 * dZ_input_hidden.dot(X.T)
-    db_input_hidden = 1e-04 * np.sum(dZ_input_hidden)
+    dW_input_hidden = 1 / m * dZ_input_hidden.dot(X.T)
+    db_input_hidden = 1 / m * np.sum(dZ_input_hidden)
     return dW_input_hidden, db_input_hidden, dW_hidden_output, db_hidden_output
 
 
