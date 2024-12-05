@@ -9,7 +9,7 @@ sys.stdin.reconfigure(encoding='utf-8')
 
 data_test = pd.read_csv('test.csv')
 
-X_test = data_test.iloc[:, 1:].values.T / 255.0
+X_test = data_test.values.T / 255.0
 Y_test = None
 
 
@@ -72,6 +72,7 @@ def softmax(Z):
 def forward_prop(W_input_hidden1, b_input_hidden1, W_hidden1_hidden2, b_hidden1_hidden2, W_hidden2_output,
                  b_hidden2_output, X):
     # First hidden layer
+    test = W_input_hidden1.dot(X)
     Z_input_hidden1 = W_input_hidden1.dot(X) + b_input_hidden1
     A_hidden1 = ReLU(Z_input_hidden1)
 
@@ -207,8 +208,11 @@ def test_prediction(index, W_input_hidden1, b_input_hidden1, W_hidden1_hidden2, 
                                   W_hidden1_hidden2, b_hidden1_hidden2, W_hidden2_output, b_hidden2_output)
     print("Prediction: ", prediction[0])
 
-    label = Y_test[index]
-    print("Actual Label: ", label)
+    if Y_test is not None:
+        label = Y_test[index]
+        print("Actual Label: ", label)
+    else:
+        print("Actual Label: Check Image")
 
     image = current_image.reshape((28, 28)) * 255
     plt.gray()
