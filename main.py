@@ -7,10 +7,10 @@ sys.stdout.reconfigure(encoding='utf-8')
 sys.stdin.reconfigure(encoding='utf-8')
 
 
-data_test = pd.read_csv('mnist_test.csv')
+data_test = pd.read_csv('test.csv')
 
-X_test = data_test.iloc[:, 1:].values.T / 255.0
-Y_test = data_test.iloc[:, 0].values
+X_test = data_test.values.T / 255.0
+Y_test = None
 
 
 # Attempt to read the CSV file for the table of 5 rows and 785 columns for pixels
@@ -32,13 +32,16 @@ Y_train = data_train.iloc[:, 0].values
 _, m_train = X_train.shape
 
 train_df = pd.DataFrame(X_train.T)
-dev_df = pd.DataFrame(X_dev.T)
+dev_df = pd.DataFrame(X_test.T)
 
 # Check for duplicates
 duplicates = train_df.merge(dev_df, how='inner')
 
 if not duplicates.empty:
     print("Data leakage detected: Training and development sets have overlapping samples.")
+    print("Overlapping Samples:")
+    print(duplicates)
+    print(f"Number of Overlapping Samples: {len(duplicates)}")
 else:
     print("No overlap detected between training and development sets.")
 
@@ -69,6 +72,7 @@ def softmax(Z):
 def forward_prop(W_input_hidden1, b_input_hidden1, W_hidden1_hidden2, b_hidden1_hidden2, W_hidden2_output,
                  b_hidden2_output, X):
     # First hidden layer
+    test = W_input_hidden1.dot(X)
     Z_input_hidden1 = W_input_hidden1.dot(X) + b_input_hidden1
     A_hidden1 = ReLU(Z_input_hidden1)
 
@@ -204,8 +208,11 @@ def test_prediction(index, W_input_hidden1, b_input_hidden1, W_hidden1_hidden2, 
                                   W_hidden1_hidden2, b_hidden1_hidden2, W_hidden2_output, b_hidden2_output)
     print("Prediction: ", prediction[0])
 
-    label = Y_test[index]
-    print("Actual Label: ", label)
+    if Y_test is not None:
+        label = Y_test[index]
+        print("Actual Label: ", label)
+    else:
+        print("Actual Label: Check Image")
 
     image = current_image.reshape((28, 28)) * 255
     plt.gray()
