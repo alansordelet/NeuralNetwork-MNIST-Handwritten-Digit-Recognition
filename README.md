@@ -39,46 +39,6 @@ It trains on `train.csv`, evaluates on a dev split, and lets you interactively t
 
 ---
 
-## ▶️ How to Run
-
-### 1) Create & activate a virtual environment (recommended)
-```bash
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS/Linux
-source .venv/bin/activate
-```
-
-### 2) Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-**`requirements.txt`**
-```text
-numpy
-pandas
-matplotlib
-```
-
-### 3) Place data files
-Put `train.csv` and `test.csv` in the project root (same folder as the script).
-
-### 4) Train + interactive test
-```bash
-python main.py
-```
-The script will:
-1. Shuffle and split `train.csv` into `data_train` / `data_dev` (1000 rows for dev).
-2. Train for the specified number of iterations/epochs.
-3. Every 10 iterations, print dev accuracy.
-4. Enter an **interactive loop**: type an index from `test.csv` to visualize the image and print the predicted digit.
-
-To exit, enter `-1` when prompted.
-
----
-
 ## ⚙️ Key Script Entry Points
 
 - **Data loading / preprocessing**
@@ -163,6 +123,46 @@ lambd=0.01          # L2 regularization strength
 - Replace manual loops with **vectorized** ops where possible for speed.  
 - Try different widths: `128 → 64 → 10`, add dropout (manual), or switch to Adam.  
 - Save/load learned weights to `.npz` with `np.savez` / `np.load`.
+
+---
+
+## ▶️ How to Run
+
+### 1) Create & activate a virtual environment (recommended)
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# macOS/Linux
+source .venv/bin/activate
+```
+
+### 2) Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+**`requirements.txt`**
+```text
+numpy
+pandas
+matplotlib
+```
+
+### 3) Place data files
+Put `train.csv` and `test.csv` in the project root (same folder as the script).
+
+### 4) Train + interactive test
+```bash
+python main.py
+```
+The script will:
+1. Shuffle and split `train.csv` into `data_train` / `data_dev` (1000 rows for dev).
+2. Train for the specified number of iterations/epochs.
+3. Every 10 iterations, print dev accuracy.
+4. Enter an **interactive loop**: type an index from `test.csv` to visualize the image and print the predicted digit.
+
+To exit, enter `-1` when prompted.
 
 ---
 
